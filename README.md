@@ -1,5 +1,7 @@
 # Night Ferry
 
+[![Play in your browser](https://img.shields.io/badge/Play-in%20your%20browser-2ea44f)](https://danielstephenson.dev/play/night-ferry)
+
 *One crossing, six passengers, and a cabin booked but empty.*
 
 The night boat to Halde leaves Brekka at eight and comes alongside at six. You are the night steward, taken on this afternoon on the quay; the purser has given you a white jacket, a master key to every cabin, and one rule: cabin 6 is not to be opened.
