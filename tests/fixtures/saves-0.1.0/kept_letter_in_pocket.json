@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "minute": 600,
+  "location": "epilogue",
+  "facts": [
+    "the_piano",
+    "harbour_house",
+    "the_letter",
+    "the_captain"
+  ],
+  "factMinutes": {
+    "the_piano": 0,
+    "harbour_house": 20,
+    "the_letter": 40,
+    "the_captain": 60
+  },
+  "unlocked": [
+    "notebook"
+  ],
+  "flags": {
+    "toveGaveLetter": true,
+    "ingridToldYou": true,
+    "keptIngridsSecret": true
+  },
+  "ending": "kept_crossing",
+  "rngDraws": 0
+}

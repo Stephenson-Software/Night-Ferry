@@ -1,10 +1,23 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Night Ferry save",
+    "description": "Version 1 is Night Ferry 0.1.0 (one crossing; no crossing or past). Version 2 adds crossing (1: October, 2: the last night boat) and past (the first crossing as it ended, once the last boat has sailed). Every version 1 save is a valid version 2 save.",
     "type": "object",
     "required": ["version", "minute", "facts"],
     "properties": {
         "version": { "type": "integer", "minimum": 1 },
+        "crossing": { "type": "integer", "enum": [1, 2] },
+        "past": {
+            "type": ["object", "null"],
+            "properties": {
+                "ending": {
+                    "type": ["string", "null"],
+                    "enum": [null, "off_the_light", "beside_arne", "at_the_door", "kept_crossing"]
+                },
+                "facts": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+                "flags": { "type": "object" }
+            }
+        },
         "minute": { "type": "integer", "minimum": 0, "maximum": 600 },
         "location": { "type": "string" },
         "facts": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
@@ -16,7 +29,11 @@
         "flags": { "type": "object" },
         "ending": {
             "type": ["string", "null"],
-            "enum": [null, "off_the_light", "beside_arne", "at_the_door", "kept_crossing"]
+            "enum": [
+                null,
+                "off_the_light", "beside_arne", "at_the_door", "kept_crossing",
+                "on_which_days", "the_column", "over_the_side", "kept_from_the_record"
+            ]
         },
         "rngDraws": { "type": "integer", "minimum": 0 }
     }

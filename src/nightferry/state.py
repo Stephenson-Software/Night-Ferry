@@ -18,8 +18,11 @@ compare the clock themselves; they ask the properties below.
 import random
 
 from nightferry import facts
+from nightferry.lastboat import facts as lastfacts
 
-SAVE_VERSION = 1
+# 1: Night Ferry 0.1.0 - one crossing. 2: two crossings - the October one and
+# the last night boat in March - with "crossing" and "past" (see migrate()).
+SAVE_VERSION = 2
 SAVE_FILENAME = "save.json"
 SCHEMA_PATH = "schemas/save.json"
 
@@ -47,6 +50,20 @@ RASKE_ON_THE_PHONE = (2 * 60, 3 * 60)
 
 START_LOCATION = "saloon"
 
+# --- the last night boat (the second crossing) -------------------------------
+# Halde to Brekka in March, on the same clock: away at eight, alongside at six.
+# Named here like the first crossing's hours, fired only in lastboat/crossing.py.
+LB_LIGHT_ASTERN = 40  # 8:40 pm: the Halde light abeam, then astern
+LB_LAST_ORDERS = 3 * 60  # 11 pm: Oskar's last last orders
+LB_THE_WATCH = 4 * 60  # midnight: Per takes the watch; Ingrid goes down to six
+LB_SALOON_DARK = 5 * 60  # 1 am
+LB_BREKKA_LIGHTS = 8 * 60  # 4 am: Brekka on the horizon
+LB_THE_STERN = 9 * 60  # 5 am: the hour she always went back up
+LB_DOCKING = CROSSING_MINUTES  # 6 am: Brekka
+
+FIRST_CROSSING = 1
+LAST_BOAT = 2
+
 
 def formatClock(minute):
     """Minutes after departure as a clock: 0 -> "8:00 pm", 300 -> "1:00 am"."""
@@ -62,8 +79,32 @@ def _within(minute, window):
     return start <= minute < end
 
 
+def migrate(data):
+    """A save as this version of the game reads it, from any earlier one.
+
+    Version 1 (0.1.0) saves are one crossing and have no "crossing" or
+    "past": they are the first crossing, with nothing before it. Nothing in a
+    version 1 save is changed or dropped. Returns a new dict."""
+    data = dict(data)
+    if data.get("version", 1) < 2:
+        data.setdefault("crossing", FIRST_CROSSING)
+        data.setdefault("past", None)
+        data["version"] = SAVE_VERSION
+    return data
+
+
+def registryFor(crossing):
+    """The facts that can be learned on a crossing."""
+    return lastfacts if crossing == LAST_BOAT else facts
+
+
 class State:
     def __init__(self):
+        # Which crossing this is: the first (October) or the last night boat.
+        self.crossing = FIRST_CROSSING
+        # The first crossing, as it ended, once the last boat has sailed:
+        # {"ending", "facts", "flags"}. None on the first crossing.
+        self.past = None
         self.minute = 0
         self.location = START_LOCATION
         self.facts = []
@@ -75,6 +116,62 @@ class State:
         # How many draws have been taken from the night's fixed sequence.
         self.rngDraws = 0
 
+    # --- which crossing ---------------------------------------------------
+    @property
+    def lastBoat(self):
+        return self.crossing == LAST_BOAT
+
+    @property
+    def registry(self):
+        """The facts module for this crossing (FACTS, TRAIL, title, ...)."""
+        return registryFor(self.crossing)
+
+    def firstCrossing(self):
+        """The first crossing's (ending, facts, flags), whichever crossing
+        this is - live on the first, remembered on the last."""
+        if self.past is not None:
+            return (
+                self.past.get("ending"),
+                list(self.past.get("facts", [])),
+                dict(self.past.get("flags", {})),
+            )
+        return self.ending, list(self.facts), dict(self.flags)
+
+    def pastFlag(self, flag):
+        """A flag from the first crossing (None on the first crossing)."""
+        if self.past is None:
+            return None
+        return self.past.get("flags", {}).get(flag)
+
+    def pastKnew(self, factId):
+        return self.past is not None and factId in self.past.get("facts", [])
+
+    @property
+    def pastEnding(self):
+        return None if self.past is None else self.past.get("ending")
+
+    def sailAgain(self):
+        """End the first crossing for good and begin the last night boat.
+
+        The first crossing's ending, facts and flags are kept, unchanged, in
+        past; the clock, the place, what is known and what has been done
+        start again. The notebook stays unlocked: it is the same notebook."""
+        if self.lastBoat or not self.over:
+            raise ValueError("the last boat sails only after the first crossing ends")
+        self.past = {
+            "ending": self.ending,
+            "facts": list(self.facts),
+            "flags": dict(self.flags),
+        }
+        self.crossing = LAST_BOAT
+        self.minute = 0
+        self.location = START_LOCATION
+        self.facts = []
+        self.factMinutes = {}
+        self.flags = {}
+        self.ending = None
+        self.rngDraws = 0
+
     # --- knowledge --------------------------------------------------------
     def knows(self, factId):
         return factId in self.facts
@@ -84,7 +181,7 @@ class State:
 
     def learn(self, factId):
         """Record a fact. Returns True if it was new."""
-        if factId not in facts.FACTS:
+        if factId not in self.registry.FACTS:
             raise ValueError("unknown fact %r" % factId)
         if factId in self.facts:
             return False
@@ -145,6 +242,35 @@ class State:
         """The Halde light is on the horizon from three; nobody misses it."""
         return self.minute >= HANNE_WAKES
 
+    # --- the last boat's night, as its scenes may ask it ----------------------
+    @property
+    def ingridOnTheBridge(self):
+        """Until midnight the captain stands at the back of the wheelhouse."""
+        return self.minute < LB_THE_WATCH
+
+    @property
+    def ingridInSix(self):
+        """From midnight until five she is in cabin 6."""
+        return LB_THE_WATCH <= self.minute < LB_THE_STERN
+
+    @property
+    def ingridAtTheStern(self):
+        """From five she is on deck, at the stern rail, until Brekka."""
+        return self.minute >= LB_THE_STERN
+
+    @property
+    def quietHours(self):
+        """After midnight the saloon is sleeping and a piano can be played."""
+        return self.minute >= LB_THE_WATCH
+
+    @property
+    def haldeLightAstern(self):
+        return self.minute < LB_LAST_ORDERS
+
+    @property
+    def brekkaInSight(self):
+        return self.minute >= LB_BREKKA_LIGHTS
+
     @property
     def over(self):
         return self.ending is not None
@@ -164,6 +290,14 @@ class State:
     def toDict(self):
         return {
             "version": SAVE_VERSION,
+            "crossing": self.crossing,
+            "past": None
+            if self.past is None
+            else {
+                "ending": self.past.get("ending"),
+                "facts": list(self.past.get("facts", [])),
+                "flags": dict(self.past.get("flags", {})),
+            },
             "minute": self.minute,
             "location": self.location,
             "facts": list(self.facts),
@@ -176,10 +310,20 @@ class State:
 
     @classmethod
     def fromDict(cls, data):
+        data = migrate(data)
         state = cls()
+        state.crossing = data.get("crossing") or FIRST_CROSSING
+        past = data.get("past")
+        if isinstance(past, dict):
+            state.past = {
+                "ending": past.get("ending"),
+                "facts": [f for f in past.get("facts", []) if f in facts.FACTS],
+                "flags": dict(past.get("flags", {})),
+            }
         state.minute = data["minute"]
         state.location = data.get("location", START_LOCATION)
-        state.facts = [f for f in data.get("facts", []) if f in facts.FACTS]
+        registry = registryFor(state.crossing).FACTS
+        state.facts = [f for f in data.get("facts", []) if f in registry]
         state.factMinutes = {
             f: int(n) for f, n in data.get("factMinutes", {}).items() if f in state.facts
         }

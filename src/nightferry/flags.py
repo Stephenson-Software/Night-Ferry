@@ -37,6 +37,28 @@ INGRID_WILL_STOP = "ingridWillStop"  # the engines stop at the Halde light
 AT_THE_DOOR = "atTheDoor"  # four o'clock: it came out in the corridor
 INGRID_TOLD_YOU = "ingridToldYou"  # she said it to you herself, on the bridge
 
+# --- the last night boat ------------------------------------------------------
+# The second crossing keeps its own flags, in a fresh dict: the first
+# crossing's are kept, unchanged, in State.past.
+OSKAR_GAVE_COLUMN = "oskarGaveColumn"  # True: he tore it out for you; False: burn it
+JORY_PLAYS = "joryPlays"  # True: play her piano tonight; False: save it for Monday
+GUS_OPENS_THE_LORRY = "gusOpensTheLorry"  # True: you answered for it; False: keep it strapped
+PER_TELLS_HER = "perTellsHer"  # True: he tells her he always knew; False: let her think nobody did
+INGRID_GIVES_BOOKS = "ingridGivesBooks"  # True: to Hanne, at five; False: "do what you came to do"
+HANNE_KNOCKS = "hanneKnocks"  # True: she went down to six herself; False: leave her tonight
+OPENED_SIX_AGAIN = "openedSixAgain"  # the captain's one rule tonight
+READ_A_BOOK = "readABook"  # you untied the string and read one
+TOLD_HANNE_TONIGHT = "toldHanneTonight"  # Hanne learned who cabin 6 was for, from you, in March
+LETTER_TO_HANNE = "letterToHanne"  # you gave her Maren's letter, five months late
+COLUMN_TO_HANNE = "columnToHanne"  # you gave her Oskar's column
+PIANO_PLAYED = "pianoPlayed"  # Jory played Maren's piano on the car deck
+INGRID_HEARD_THE_PIANO = "ingridHeardThePiano"  # she was in six, above it
+INGRID_TOLD_YOU_TONIGHT = "ingridToldYouTonight"  # where she is going, from her
+AT_THE_STERN = "atTheStern"  # five o'clock: Per sent for you
+BOOKS_TO_HANNE = "booksToHanne"  # the crossword books went to Hanne
+BOOKS_OVERBOARD = "booksOverboard"  # they went over the side
+BOOKS_KEPT = "booksKept"  # she took them south with her
+
 ALL = (
     KEPT_INGRIDS_SECRET,
     BROKE_YOUR_WORD,
@@ -59,4 +81,22 @@ ALL = (
     INGRID_WILL_STOP,
     AT_THE_DOOR,
     INGRID_TOLD_YOU,
+    OSKAR_GAVE_COLUMN,
+    JORY_PLAYS,
+    GUS_OPENS_THE_LORRY,
+    PER_TELLS_HER,
+    INGRID_GIVES_BOOKS,
+    HANNE_KNOCKS,
+    OPENED_SIX_AGAIN,
+    READ_A_BOOK,
+    TOLD_HANNE_TONIGHT,
+    LETTER_TO_HANNE,
+    COLUMN_TO_HANNE,
+    PIANO_PLAYED,
+    INGRID_HEARD_THE_PIANO,
+    INGRID_TOLD_YOU_TONIGHT,
+    AT_THE_STERN,
+    BOOKS_TO_HANNE,
+    BOOKS_OVERBOARD,
+    BOOKS_KEPT,
 )

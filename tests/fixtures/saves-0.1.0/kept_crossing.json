@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "minute": 600,
+  "location": "epilogue",
+  "facts": [
+    "cabin_six",
+    "the_door",
+    "the_captain",
+    "inside_six"
+  ],
+  "factMinutes": {
+    "cabin_six": 0,
+    "the_door": 20,
+    "the_captain": 40,
+    "inside_six": 300
+  },
+  "unlocked": [
+    "notebook"
+  ],
+  "flags": {
+    "ingridToldYou": true,
+    "keptIngridsSecret": true,
+    "ashesInSix": true
+  },
+  "ending": "kept_crossing",
+  "rngDraws": 0
+}

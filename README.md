@@ -8,6 +8,8 @@ Cabin 6 was paid for in cash. Nobody has come aboard to claim it.
 
 Night Ferry is a text adventure built on [tak](https://github.com/Stephenson-Software/tak), the text-adventure kit, and a sibling of [Overwinter](https://github.com/Stephenson-Software/Overwinter) and [Tidewater](https://github.com/Stephenson-Software/Tidewater). Ten hours, hour by hour; talk, eavesdrop, open what you shouldn't. Who the empty cabin was for comes out before docking, however you play — and the last page says plainly what you did and what it cost whom. A crossing takes twenty to forty minutes.
 
+When the first crossing ends, the same save can sail again: **the last night boat**, Halde to Brekka in March, five months later, the Kittiwake's final night run before she is sold south. Everything you did in October is remembered there.
+
 ## Play
 
 `pip install -r requirements.txt` needs `git` on your PATH: the kit is installed from a pinned commit on GitHub.
@@ -45,13 +47,25 @@ Some of what people ask you is a **choice**, not a question. *Hanne will remembe
 
 Four endings — **off the light**, **beside Arne**, **at the door**, and **the kept crossing** — and each one's last page says what happened, who cabin 6 was for, what you did, and what it cost each person on the boat, by name. If nobody has told Hanne by four in the morning, and you have not promised the captain to keep it, the captain comes down to cabin 6 herself and it comes out in the corridor: a player who never asks a question still hears the whole answer before the boat docks.
 
+## The last night boat
+
+From the first crossing's last screen, *Sail the last night boat (March)* starts the second crossing in the same save. The captain is crossing as a passenger in cabin 6, booked in her own name, with a suitcase and a cardboard box tied with string, and the one rule tonight is hers: nobody disturbs six. The mate, Per Aasen, has the ship for one night. The question is where the captain is going, and what is in the box.
+
+It has its own thirteen facts (`Known: n/13`), its own fixed hours (`lastboat/crossing.py`: last orders at eleven, the mate's watch at midnight, Brekka's lights at four, five o'clock, the quay at six), and its own choices: the purser's ledger column, Maren's piano on the car deck and whether her last pupil plays it, whether the mate tells the captain what he always knew, whether Hanne knocks on six. Four endings — **on which days**, **the column**, **over the side**, and **kept from the record**. At five, if nothing has been settled, the mate sends for you and the captain tells you all of it at the stern rail before she puts the choice to you: the failure-proof answer again.
+
+October carries over (`lastboat/carried.py`): how the first crossing ended, whether Hanne knew, whether you told Raske the truth, whether you opened six, whether you still have Maren's letter in your pocket. It changes who is in command, what the purser's winter was like, what Hanne already knows, and every line of the last page. The notebook keeps October's last page.
+
+## Achievements
+
+On [arcade](https://danielstephenson.dev/play), signed-in players earn achievements through `tak.arcade.unlock` (`src/nightferry/achievements.py`): one for each of the eight endings, and some for discoveries — all sixteen things on the first crossing, all thirteen on the last, the answer before four, never opening cabin 6, and a few hidden ones. A save from before achievements existed is credited the first time it is opened. Outside the browser the calls do nothing.
+
 The state is one tier (`state.py`): the minute, where you are, the facts and the time each was learned, the flags (every one named in `flags.py`), and the ending once there is one. The clock is `crossing.py`: it fires the hours of the night — the bar at eleven, the dark saloon at one, Hanne waking at three, the captain at four, the light at five, the quay at six. Scenes and people never compare the clock themselves.
 
 What the saloon and the sea show you is drawn from a seeded sequence, one generator per draw, so a reloaded save sees the same night.
 
 ## Saves
 
-Numbered slots under `data/` (or `NIGHTFERRY_SAVE_DIR`), one `save.json` each, validated against `schemas/save.json` on every load and save. A save that can't be read is listed as damaged, never overwritten, and copied aside if you open it anyway. In the browser, saves live in IndexedDB (`night-ferry-saves`) and the page's Saves control downloads or loads them as a file.
+Numbered slots under `data/` (or `NIGHTFERRY_SAVE_DIR`), one `save.json` each, validated against `schemas/save.json` on every load and save. Saves made by 0.1.0 (schema version 1, one crossing) load unchanged: `state.migrate()` brings them forward in memory, and the next save writes them as version 2, which adds `crossing` and `past` (the first crossing as it ended). `tests/fixtures/saves-0.1.0/` holds saves written by 0.1.0 itself, and `tests/test_save_compat.py` loads, plays on and sails the last boat from each. A save that can't be read is listed as damaged, never overwritten, and copied aside if you open it anyway. In the browser, saves live in IndexedDB (`night-ferry-saves`) and the page's Saves control downloads or loads them as a file.
 
 ## Development
 
@@ -60,7 +74,7 @@ pip install pytest pytest-cov -r requirements.txt
 ./test.sh
 ```
 
-`tests/routes.py` holds scripted crossings — the canonical solve, the do-nothing night, the kept secret — and `tests/test_game.py` and `tests/test_endings.py` play them through a scripted front-end to each ending; if a menu label moves or a gate breaks, those tests say which.
+`tests/routes.py` holds scripted crossings — the canonical solve, the do-nothing night, the kept secret, and the last boat's canonical — and `tests/test_game.py`, `tests/test_endings.py` and `tests/test_lastboat.py` play them through a scripted front-end to each ending; if a menu label moves or a gate breaks, those tests say which. `tests/test_achievements.py` plays them with `tak.arcade` mocked and checks that every achievement is earned by some route.
 
 ## License
 This project is licensed under the **Stephenson Software Non-Commercial License (Stephenson-NC)**.  

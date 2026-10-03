@@ -95,3 +95,88 @@ KEPT = NEW + [
     "Carry Hanne's bag to cabin 6",  # 2:00
     "Go along the cabin corridor",
 ] + waitInPantry(4) + ["Quit"]  # 6:00
+
+
+# --- the last night boat ------------------------------------------------------
+SAIL = "Sail the last night boat"
+
+
+def lastBoatAfter(firstRoute):
+    """A first-crossing route whose last step (Quit, at the epilogue) is
+    replaced by sailing the last night boat."""
+    assert firstRoute[-1] == "Quit"
+    return list(firstRoute[:-1]) + [SAIL]
+
+
+# The last boat's canonical solve: all thirteen facts, every person's
+# remembered choice, Jory playing under the captain's floor, and Hanne
+# knocking on six herself. Ends "on which days" at six.
+LAST_CANONICAL = (
+    [
+        "Ask the purser about cabin 6",
+        "What's the story with cabin 6 tonight",  # SIX_TONIGHT
+        "What happens to your ledgers",  # OSKARS_COLUMN
+        "Give me the column instead",  # OSKAR_GAVE_COLUMN = True
+        "[Back]",  # 8:20
+        "Sit with Hanne Sollid",
+        "Crossing back to Brekka",  # THE_CROSSES
+        "[Back]",  # 8:40, the light astern
+        "Go out on the open deck",
+        "Talk to the young man at the rail",
+        "Going back to Brekka",  # JORYS_AUDITION
+        "Anything new on Halde",  # HOUSE_SOLD
+        "[Back]",  # 9:00
+        "Walk the lower deck",
+        "Talk to the lorry driver",
+        "What are you hauling this time",  # PIANO_AGAIN
+        "[Back]",  # 9:20
+        "Go out on the open deck",
+        "Talk to Jory",
+        "Play it tonight",  # JORY_PLAYS = True
+        "[Back]",  # 9:40
+        "Walk the lower deck",
+        "Talk to Gus",
+        "Open the back for Jory",  # GUS_OPENS_THE_LORRY = True
+        "[Back]",  # 10:00
+        "Go back to the saloon",
+        "Talk to Oskar",
+        "Where's the captain going",  # TICKET_SOUTH
+        "[Back]",  # 10:20
+        "Go up to the wheelhouse",
+        "Talk to Per Aasen",
+        "Why isn't the captain in command",  # THE_PASSENGER
+        "You took the watch at midnight",  # MATES_WATCH
+        "What's in the night order book",  # THE_STOP
+        "Tell her you knew",  # PER_TELLS_HER = True
+        "[Back]",  # 10:40
+        "Go along the cabin corridor",
+        "Open cabin 6 with your master key",  # THE_BOX, OPENED_SIX_AGAIN; 11:00
+        "Untie the string",  # THE_MARGINS; 11:20
+        "Go up to the wheelhouse",
+        "Talk to the captain",
+        "Where are you going, Ingrid",  # THE_ANSWER
+        "[Back]",  # 11:40
+        "Go along the cabin corridor",
+        PANTRY,  # 12:40; midnight - Per has the watch, she goes down to six
+        "Walk the lower deck",
+        "Fetch Jory down to the piano",  # 1:00; she hears it in six
+        "Go back to the saloon",
+        "Sit with Hanne Sollid",
+        "Go and knock",  # HANNE_KNOCKS -> the books to Hanne
+        "This is from the purser's ledgers",  # COLUMN_TO_HANNE
+        "[Back]",  # 1:20
+        "Go along the cabin corridor",
+        "Knock at cabin 6",
+        "Per always knew",
+        "Jory played her piano",
+        "[Back]",  # 1:40
+    ]
+    + waitInPantry(5)
+    + [  # 5:00 the stern, 6:00 Brekka
+        "Quit",
+    ]
+)
+
+# The do-nothing last boat: ask nobody anything, and at five Per sends for
+# you, and the captain tells you all of it at the stern rail.
+LAST_DO_NOTHING_UNTIL_FIVE = ["Go along the cabin corridor"] + waitInPantry(9)

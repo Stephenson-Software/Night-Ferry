@@ -119,3 +119,23 @@ def scripted(monkeypatch):
         return game, holder["ui"]
 
     return make
+
+
+FIXTURES = os.path.join(REPOSITORY_ROOT, "tests", "fixtures", "saves-0.1.0")
+
+
+@pytest.fixture
+def installSave():
+    """Put a save file into slot 1 of this test's save directory, as the
+    browser's IndexedDB mirror or a console player's data/ would hold it.
+    Returns the path it was written to."""
+    import shutil
+
+    def install(name, slot=1):
+        directory = os.path.join(os.environ["NIGHTFERRY_SAVE_DIR"], "slot_%d" % slot)
+        os.makedirs(directory, exist_ok=True)
+        path = os.path.join(directory, "save.json")
+        shutil.copy(os.path.join(FIXTURES, name + ".json"), path)
+        return path
+
+    return install

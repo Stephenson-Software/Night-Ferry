@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "minute": 600,
+  "location": "epilogue",
+  "facts": [
+    "the_ashes",
+    "the_captain",
+    "the_letter",
+    "what_maren_wrote"
+  ],
+  "factMinutes": {
+    "the_ashes": 480,
+    "the_captain": 480,
+    "the_letter": 480,
+    "what_maren_wrote": 480
+  },
+  "unlocked": [
+    "notebook"
+  ],
+  "flags": {
+    "atTheDoor": true,
+    "hanneKnows": true,
+    "letterDelivered": true,
+    "ingridAskedForHanne": true,
+    "ingridToldYou": true
+  },
+  "ending": "at_the_door",
+  "rngDraws": 0
+}

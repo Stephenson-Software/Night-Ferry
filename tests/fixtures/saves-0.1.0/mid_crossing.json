@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "minute": 100,
+  "location": "cardeck",
+  "facts": [
+    "cabin_six",
+    "the_ashes",
+    "the_note",
+    "the_teacher",
+    "the_appointments",
+    "raskes_audit",
+    "the_ledger",
+    "last_winter",
+    "the_piano"
+  ],
+  "factMinutes": {
+    "cabin_six": 0,
+    "the_ashes": 20,
+    "the_note": 20,
+    "the_teacher": 40,
+    "the_appointments": 40,
+    "raskes_audit": 60,
+    "the_ledger": 60,
+    "last_winter": 60,
+    "the_piano": 80
+  },
+  "unlocked": [
+    "notebook"
+  ],
+  "flags": {
+    "fennTells": true,
+    "hannePrepared": true,
+    "letGusIn": false
+  },
+  "ending": null,
+  "rngDraws": 0
+}
