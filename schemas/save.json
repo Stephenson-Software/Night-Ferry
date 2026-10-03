@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Night Ferry save",
+    "type": "object",
+    "required": ["version", "minute", "facts"],
+    "properties": {
+        "version": { "type": "integer", "minimum": 1 },
+        "minute": { "type": "integer", "minimum": 0, "maximum": 600 },
+        "location": { "type": "string" },
+        "facts": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "factMinutes": {
+            "type": "object",
+            "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 600 }
+        },
+        "unlocked": { "type": "array", "items": { "type": "string" } },
+        "flags": { "type": "object" },
+        "ending": {
+            "type": ["string", "null"],
+            "enum": [null, "off_the_light", "beside_arne", "at_the_door", "kept_crossing"]
+        },
+        "rngDraws": { "type": "integer", "minimum": 0 }
+    }
+}
