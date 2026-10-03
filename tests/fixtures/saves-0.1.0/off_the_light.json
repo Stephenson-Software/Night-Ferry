@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "minute": 540,
+  "location": "epilogue",
+  "facts": [
+    "cabin_six",
+    "the_ashes",
+    "the_note",
+    "the_teacher",
+    "the_appointments",
+    "raskes_audit",
+    "the_ledger",
+    "last_winter",
+    "the_piano",
+    "jorys_term",
+    "the_door",
+    "harbour_house",
+    "the_letter",
+    "inside_six",
+    "the_captain",
+    "what_maren_wrote"
+  ],
+  "factMinutes": {
+    "cabin_six": 0,
+    "the_ashes": 20,
+    "the_note": 20,
+    "the_teacher": 40,
+    "the_appointments": 40,
+    "raskes_audit": 60,
+    "the_ledger": 60,
+    "last_winter": 60,
+    "the_piano": 80,
+    "jorys_term": 100,
+    "the_door": 100,
+    "harbour_house": 100,
+    "the_letter": 120,
+    "inside_six": 140,
+    "the_captain": 160,
+    "what_maren_wrote": 160
+  },
+  "unlocked": [
+    "notebook"
+  ],
+  "flags": {
+    "fennTells": true,
+    "hannePrepared": true,
+    "letGusIn": false,
+    "joryTells": true,
+    "toveGaveLetter": true,
+    "openedSix": true,
+    "ingridToldYou": true,
+    "keptIngridsSecret": false,
+    "letterDelivered": true,
+    "ingridAskedForHanne": true,
+    "hanneKnows": true,
+    "metInWheelhouse": true,
+    "hanneChoseLight": true,
+    "ingridWillStop": true,
+    "toldRaske": true
+  },
+  "ending": "off_the_light",
+  "rngDraws": 0
+}

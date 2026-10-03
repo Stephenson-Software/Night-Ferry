@@ -136,11 +136,14 @@ def test_no_person_or_scene_gates_on_the_clock():
     paths = [os.path.join(root, "people.py")]
     scenes = os.path.join(root, "scenes")
     paths += [os.path.join(scenes, n) for n in os.listdir(scenes) if n.endswith(".py")]
+    # The last night boat: its people, places and what it remembers.
+    for name in ("people.py", "scenes.py", "carried.py", "endings.py"):
+        paths.append(os.path.join(root, "lastboat", name))
     compared = re.compile(
         r"\.minute\b\s*(?:[<>]=?|[=!]=|\bin\b)|(?:[<>]=?|[=!]=)\s*\w+\.minute\b"
     )
     hours = re.compile(
-        r"\b(?:LAST_ORDERS|SALOON_DARK|HANNE_WAKES|CAPTAIN_COMES_DOWN|THE_LIGHT|DOCKING|OSKAR_ROUNDS|RASKE_ON_THE_PHONE)\b"
+        r"\b(?:LAST_ORDERS|SALOON_DARK|HANNE_WAKES|CAPTAIN_COMES_DOWN|THE_LIGHT|DOCKING|OSKAR_ROUNDS|RASKE_ON_THE_PHONE|LB_[A-Z_]+)\b"
     )
     for path in paths:
         with open(path) as f:
@@ -170,3 +173,44 @@ def test_every_flag_the_game_sets_is_declared_in_one_place():
     assert used <= declared, used - declared
     assert set(getattr(flags, n) for n in declared) == set(flags.ALL)
     assert len(set(flags.ALL)) == len(flags.ALL)
+
+
+def test_a_last_boat_state_round_trips_through_the_schema():
+    state = State()
+    state.minute = 600
+    state.learn(facts.CABIN_SIX)
+    state.flags[flags.OPENED_SIX] = True
+    state.ending = "at_the_door"
+    state.sailAgain()
+    assert state.minute == 0 and state.facts == [] and state.flags == {}
+    assert state.past == {
+        "ending": "at_the_door",
+        "facts": [facts.CABIN_SIX],
+        "flags": {flags.OPENED_SIX: True},
+    }
+    state.minute = 300
+    state.learn("six_tonight")
+    state.flags[flags.JORY_PLAYS] = True
+    state.ending = "the_column"
+    data = json.loads(json.dumps(state.toDict()))
+    validateAgainstSchema(data, "schemas/save.json")
+    assert data["version"] == 2 and data["crossing"] == 2
+    assert State.fromDict(data).toDict() == state.toDict()
+    # A first-crossing fact cannot be learned on the last boat, nor the reverse.
+    try:
+        state.learn(facts.CABIN_SIX)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("an October fact was learned in March")
+
+
+def test_the_last_boats_night_is_where_the_hour_puts_it():
+    from nightferry.state import LB_THE_STERN, LB_THE_WATCH
+
+    state = State()
+    assert state.ingridOnTheBridge and not state.ingridInSix and not state.quietHours
+    state.minute = LB_THE_WATCH
+    assert state.ingridInSix and state.quietHours and not state.ingridOnTheBridge
+    state.minute = LB_THE_STERN
+    assert state.ingridAtTheStern and not state.ingridInSix

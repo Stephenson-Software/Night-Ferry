@@ -18,10 +18,20 @@ from tak.saves import (
 )
 from tak.ui import UIType, createUserInterface
 
-from nightferry import endings, premise, progression, scenes
+from nightferry import achievements, endings, premise, progression, scenes
+from nightferry.lastboat import endings as lastEndings
+from nightferry.lastboat import premise as lastPremise
+from nightferry.lastboat import scenes as lastScenes
 from nightferry.config import Config
 from nightferry.header import buildHeader
-from nightferry.state import SAVE_FILENAME, SCHEMA_PATH, State, formatClock
+from nightferry.state import (
+    LAST_BOAT,
+    SAVE_FILENAME,
+    SCHEMA_PATH,
+    State,
+    formatClock,
+    migrate,
+)
 
 TITLE = "Night Ferry"
 TAGLINE = "one crossing, six passengers, and a cabin booked but empty"
@@ -33,10 +43,20 @@ INTERFACE_TYPE = UIType.CONSOLE
 
 
 def describeSlot(metadata):
-    """The save menu's summary of a slot: "1:20 am, 6 known"."""
+    """The save menu's summary of a slot: "1:20 am, 6 known", or on the last
+    night boat "last boat, 1:20 am, 6 known"."""
+    prefix = "last boat, " if metadata.get("crossing") == LAST_BOAT else ""
     if metadata.get("ending"):
-        return "docked - %s, %d known" % (metadata["ending"], metadata.get("known", 0))
-    return "%s, %d known" % (metadata.get("time", "?"), metadata.get("known", 0))
+        return "%sdocked - %s, %d known" % (
+            prefix,
+            metadata["ending"],
+            metadata.get("known", 0),
+        )
+    return "%s%s, %d known" % (
+        prefix,
+        metadata.get("time", "?"),
+        metadata.get("known", 0),
+    )
 
 
 def slotMetadata(slotPath, data):
@@ -53,10 +73,22 @@ def slotMetadata(slotPath, data):
         return {
             "time": formatClock(max(0, state.minute)),
             "known": len(state.facts),
-            "ending": endings.name(state) if state.over else None,
+            "ending": endingName(state) if state.over else None,
+            "crossing": state.crossing,
         }
     except (KeyError, TypeError, ValueError, AttributeError):
         return {"time": "damaged", "known": 0, "ending": None}
+
+
+def endingName(state):
+    return (lastEndings if state.lastBoat else endings).name(state)
+
+
+def buildScenes(game):
+    """The places for the crossing being played."""
+    if game.state.lastBoat:
+        return lastScenes.build(game)
+    return scenes.build(game)
 
 
 # @author Daniel McCoy Stephenson
@@ -104,7 +136,13 @@ class NightFerry:
                 self.prompt.text = "%s. What would you like to do?" % self.state.clock
         # A loaded save may predate an unlock, or have earned one since.
         progression.catchUp(self.state)
-        self.scenes = scenes.build(self)
+        self.scenes = buildScenes(self)
+        # Achievements reported to arcade this run (tak.arcade.unlock is
+        # idempotent; this only keeps one run from repeating itself). A loaded
+        # save reports what it has already earned - an ending reached on 0.1.0
+        # included.
+        self.awarded = set()
+        achievements.award(self)
         # A brand-new crossing opens on who you are and why, once.
         self.showOpening = kind == "new" or (
             self.state.minute == 0 and not self.state.facts
@@ -123,9 +161,24 @@ class NightFerry:
         finally:
             self.ui.cleanup()
 
+    def sailTheLastBoat(self):
+        """From the first crossing's epilogue: begin the last night boat in
+        this same save. Returns the scene to show next."""
+        self.state.sailAgain()
+        self.scenes = buildScenes(self)
+        self.returnTo = "saloon"
+        self.prompt.reset()
+        self.ui.showDialogue(lastPremise.opening(self.state))
+        self.save()
+        return self.state.location
+
     def _runGameLoop(self):
         if self.showOpening:
-            self.ui.showDialogue(premise.OPENING)
+            self.ui.showDialogue(
+                lastPremise.opening(self.state)
+                if self.state.lastBoat
+                else premise.OPENING
+            )
             self.showOpening = False
         while self.running:
             unlock = progression.getNextUnlock(self.state)
@@ -138,6 +191,7 @@ class NightFerry:
                 )
             nextScene = self.scenes[current].run()
             self.save()
+            achievements.award(self)
             if nextScene == scenes.QUIT:
                 self.running = False
 
@@ -154,6 +208,11 @@ class NightFerry:
         try:
             with open(path, "r", encoding="utf-8") as saveFile:
                 data = json.load(saveFile)
+            validateAgainstSchema(data, SCHEMA_PATH)
+            # An older save (0.1.0 wrote version 1) is brought forward in
+            # memory; the file on disk is rewritten in the new shape only by
+            # the next save(), after the player's next action.
+            data = migrate(data)
             validateAgainstSchema(data, SCHEMA_PATH)
             self.state = State.fromDict(data)
         except (ValueError, ValidationError, OSError, KeyError, TypeError) as error:

@@ -21,6 +21,11 @@ class Scene:
 
     id = ""
     travelTo = ()
+    # The crossing a scene belongs to: its clock, its last page, and who
+    # remembers its choices. The last night boat's scenes swap all three.
+    clock = crossing
+    lastPage = endings
+    remembered = people.REMEMBERED
 
     def __init__(self, game):
         self.game = game
@@ -76,15 +81,15 @@ class Scene:
         self.game.spoke = False
         self.ui.showInteractiveDialogue(npc)
         for flag in list(self.state.flags):
-            if flag not in before and flag in people.REMEMBERED:
-                self.remember(people.REMEMBERED[flag])
+            if flag not in before and flag in self.remembered:
+                self.remember(self.remembered[flag])
         if self.game.spoke:
             return self.spend(1)
         return self.after()
 
     def spend(self, turns=1):
         """An action took time. Returns where the game goes next."""
-        outcome = crossing.advance(self.game, turns)
+        outcome = self.clock.advance(self.game, turns)
         if outcome.lines:
             self.ui.showDialogue("\n\n".join(outcome.lines))
         return self.after()
@@ -93,6 +98,6 @@ class Scene:
         state = self.state
         if state.over:
             if state.location != "epilogue":
-                self.ui.showDialogue(endings.text(state))
+                self.ui.showDialogue(self.lastPage.text(state))
             return self.go("epilogue")
         return state.location
