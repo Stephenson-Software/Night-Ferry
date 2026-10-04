@@ -21,7 +21,7 @@
 <h2>Night Ferry <span class="tagline">— one crossing, six passengers, and a cabin booked but empty</span></h2>
 <div id="status" class="status">Starting&hellip;</div>
 <div id="app"></div>
-<p class="controls">Tip: click an option or press its number key (1-9). Enter or Space continues. Your saved games live in this browser.</p>
+<p class="controls">Tip: click an option or press its number key (1-9). Enter or Space continues. Your saved games live in this browser; signed in, you can also back them up to your account.</p>
 <footer class="credit">More by Daniel Stephenson &rarr; <a href="https://danielstephenson.dev">danielstephenson.dev</a></footer>
 <script src="/tak/client.js"></script>
 <script src="/tak/boot.js"></script>
@@ -32,6 +32,9 @@ TakBoot.start({
   bundleUrl: "/web/game.zip",
   entry: "web/pyodide_main.py",
   logPrefix: "[night-ferry]",
+  // Cloud saves on arcade (RFC 0016): a signed-in player can back these
+  // saves up and get them on their other devices. Off until they turn it on.
+  cloudSaves: true,
   messages: { download: "The ramp is coming up at Brekka…", start: "Eight o'clock, the Halde crossing…" },
 });
 </script>

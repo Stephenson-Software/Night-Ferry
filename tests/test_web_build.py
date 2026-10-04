@@ -15,6 +15,8 @@ def test_the_page_uses_the_kits_assets_and_names_the_game():
     assert 'idbName: "night-ferry-saves"' in page
     assert 'saveDirEnv: "NIGHTFERRY_SAVE_DIR"' in page
     assert 'entry: "web/pyodide_main.py"' in page
+    # Cloud saves (RFC 0016), only on arcade and only once a player turns them on.
+    assert "cloudSaves: true," in page
 
 
 def test_the_bundle_carries_the_game_and_the_kit(tmp_path):
