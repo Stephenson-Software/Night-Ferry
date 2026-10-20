@@ -96,14 +96,14 @@ Cabin 6 is booked, cash, in the name of **I. Halvard**. The captain came up the 
 | Harbour House, sold | Jory |
 | The piano, again | Gus, or lifting the tarpaulin |
 | A single | Oskar, once you know the house is sold |
-| Five o'clock | Per, or the night order book |
+| Five o'clock | Per, the night order book, or five o'clock |
 | The box | opening six with the master key before midnight, Ingrid, or five o'clock |
 | In the margins | untying the string, the books given to Hanne, or five o'clock |
 | Maren's crosses | Hanne |
 | The mate's watch | Per |
 | The column | Oskar |
 | Monday | Jory |
-| Where the captain is going | Ingrid (once you know the box, or two of house/piano/ticket/five o'clock), or five o'clock |
+| Where the captain is going | Ingrid (once you know the box, or two of house/piano/ticket/five o'clock), the books given to Hanne, or five o'clock |
 
 ## The choices
 
