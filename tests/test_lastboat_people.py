@@ -6,7 +6,12 @@ import pytest
 
 from nightferry import endings, flags
 from nightferry.lastboat import facts, people
-from nightferry.state import LB_BREKKA_LIGHTS, LB_LAST_ORDERS, LB_THE_WATCH
+from nightferry.state import (
+    LB_BREKKA_LIGHTS,
+    LB_LAST_ORDERS,
+    LB_THE_STERN,
+    LB_THE_WATCH,
+)
 
 from conftest import FakeGame
 
@@ -61,6 +66,24 @@ def test_oskar_remembers_his_suspension_and_keeping_you_on():
     assert "five months' suspension" in _ask(game, "oskar", "ledgers")
 
 
+@pytest.mark.parametrize(
+    "question, chosen, expected",
+    [
+        ("Give me the column instead.", True, "(He looks at you for a long time."),
+        ("Burn it. It was theirs.", False, "(He nods, as if you'd passed something.)"),
+    ],
+)
+def test_oskar_holds_you_to_what_you_said_about_the_column(question, chosen, expected):
+    game = _lastBoat(
+        endings.KEPT_CROSSING, known=[facts.SIX_TONIGHT, facts.OSKARS_COLUMN]
+    )
+    assert _ask(game, "oskar", question).startswith(expected)
+    assert game.state.flags[flags.OSKAR_GAVE_COLUMN] is chosen
+    for other in ("Give me the column instead.", "Burn it. It was theirs."):
+        with pytest.raises(AssertionError):
+            _ask(game, "oskar", other)
+
+
 # --- the mate ---------------------------------------------------------------
 @pytest.mark.parametrize(
     "ending, octoberFlags, expected",
@@ -81,7 +104,87 @@ def test_per_says_why_the_captain_is_not_in_command(ending, octoberFlags, expect
     assert game.state.knows(facts.THE_PASSENGER)
 
 
+def test_per_lets_her_go_thinking_nobody_knew():
+    game = _lastBoat(
+        endings.KEPT_CROSSING, known=[facts.THE_PASSENGER, facts.MATES_WATCH]
+    )
+    assert _ask(game, "per", "Let her go thinking nobody knew.").startswith(
+        "(He nods.) That's what she wanted."
+    )
+    assert game.state.flags[flags.PER_TELLS_HER] is False
+    with pytest.raises(AssertionError):
+        _ask(game, "per", "Tell her you knew.")
+
+
+def test_per_can_only_be_asked_to_tell_her_while_she_is_on_the_bridge():
+    game = _lastBoat(
+        endings.KEPT_CROSSING,
+        minute=LB_THE_WATCH,
+        known=[facts.THE_PASSENGER, facts.MATES_WATCH],
+    )
+    for question in ("Tell her you knew.", "Let her go thinking nobody knew."):
+        with pytest.raises(AssertionError):
+            _ask(game, "per", question)
+    assert flags.PER_TELLS_HER not in game.state.flags
+
+
 # --- the captain ------------------------------------------------------------
+@pytest.mark.parametrize(
+    "minute, expected",
+    [
+        (0, "Not captain. (She takes it anyway.)"),
+        (LB_THE_WATCH, "(The door opens a hand's width. She takes the cup.)"),
+    ],
+)
+def test_ingrid_takes_her_coffee_on_the_bridge_or_through_the_door_of_six(
+    minute, expected
+):
+    game = _lastBoat(endings.KEPT_CROSSING, minute=minute)
+    assert _ask(game, "ingrid", "Coffee, captain?").startswith(expected)
+
+
+def test_ingrid_says_why_she_is_not_in_command_and_is_not_asked_again():
+    game = _lastBoat(endings.KEPT_CROSSING)
+    answer = _ask(game, "ingrid", "Why aren't you in command tonight?")
+    assert answer.startswith("Because she's Mr Aasen's tonight")
+    assert game.state.knows(facts.THE_PASSENGER)
+    with pytest.raises(AssertionError):
+        _ask(game, "ingrid", "Why aren't you in command tonight?")
+
+
+def test_ingrid_will_not_give_up_the_books_without_the_crosses_or_the_piano():
+    game = _lastBoat(endings.KEPT_CROSSING, known=[facts.THE_ANSWER])
+    answer = _ask(game, "ingrid", "Give the books to Hanne.")
+    assert answer.endswith("(She turns away.) No.")
+    assert flags.INGRID_GIVES_BOOKS not in game.state.flags
+    assert _ask(game, "ingrid", "Give the books to Hanne.") == answer
+
+
+def test_ingrid_gives_up_the_books_for_the_piano_under_the_floor():
+    game = _lastBoat(
+        endings.KEPT_CROSSING,
+        known=[facts.THE_ANSWER],
+        tonight={flags.INGRID_HEARD_THE_PIANO: True},
+    )
+    answer = _ask(game, "ingrid", "Give the books to Hanne.")
+    assert answer.startswith("I heard him. Under the floor of six, the Grieg")
+    assert answer.endswith("and I'll tell her which days.")
+    assert game.state.flags[flags.INGRID_GIVES_BOOKS] is True
+
+
+def test_the_books_are_not_put_to_ingrid_once_she_is_at_the_stern():
+    """From five she is on deck, and neither choice about the books is put
+    to her there."""
+    game = _lastBoat(
+        endings.KEPT_CROSSING,
+        minute=LB_THE_STERN,
+        known=[facts.THE_ANSWER, facts.THE_CROSSES],
+    )
+    for question in ("Give the books to Hanne.", "Do what you came to do."):
+        with pytest.raises(AssertionError):
+            _ask(game, "ingrid", question)
+
+
 @pytest.mark.parametrize(
     "ending, octoberFlags, expected",
     [
@@ -187,6 +290,27 @@ def test_hanne_opens_with_how_october_ended(ending, expected):
         assert answer.endswith("I don't know what any of them were.")
 
 
+def test_hanne_takes_her_tea_without_looking_up():
+    game = _lastBoat(endings.KEPT_CROSSING)
+    assert _ask(game, "hanne", "Can I get you anything?") == (
+        "Tea, please. Milk, no sugar. (She doesn't look up from the diary.)"
+    )
+
+
+def test_hanne_leaves_the_captain_to_her_last_crossing():
+    game = _lastBoat(
+        endings.OFF_THE_LIGHT,
+        minute=LB_THE_WATCH,
+        known=[facts.THE_CROSSES, facts.THE_BOX],
+    )
+    answer = _ask(game, "hanne", "Leave her tonight.")
+    assert answer.startswith("(She nods, and opens the diary again.) Not tonight.")
+    assert game.state.flags[flags.HANNE_KNOCKS] is False
+    assert flags.BOOKS_TO_HANNE not in game.state.flags
+    with pytest.raises(AssertionError):
+        _ask(game, "hanne", "Go and knock.")
+
+
 # --- the lorry driver -------------------------------------------------------
 @pytest.mark.parametrize(
     "letGusIn, expected",
@@ -236,3 +360,15 @@ def test_jory_remembers_what_he_told_his_parents(joryTells, expected):
 def test_jory_at_the_rail_says_what_is_in_sight(minute, expected):
     game = _lastBoat(endings.KEPT_CROSSING, minute=minute)
     assert _ask(game, "jory", "Cold out here.").startswith(expected)
+
+
+def test_jory_saves_the_grieg_for_monday():
+    game = _lastBoat(
+        endings.KEPT_CROSSING, known=[facts.JORYS_AUDITION, facts.PIANO_AGAIN]
+    )
+    assert _ask(game, "jory", "Save it for Monday.") == (
+        "(Relieved.) Monday. (He puts the music away.) Yeah. Monday."
+    )
+    assert game.state.flags[flags.JORY_PLAYS] is False
+    with pytest.raises(AssertionError):
+        _ask(game, "jory", "Play it tonight.")
