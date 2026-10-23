@@ -4,7 +4,7 @@ the clock and the steward's choices say, and each place's own actions learn
 what they name and cost the time they say. The notebook costs nothing,
 keeps its last page for after the ending, and always closes somewhere."""
 
-from nightferry import endings, facts, flags
+from nightferry import endings, facts, flags, scenes
 from nightferry.scenes.corridor import Corridor
 from nightferry.scenes.deck import SEA, Deck
 from nightferry.scenes.epilogue import Epilogue
@@ -220,9 +220,7 @@ def _notebook(script, known=(), ending=None, returnTo="saloon"):
     game = _game(script, known=known, location="journal")
     game.state.ending = ending
     game.returnTo = returnTo
-    game.scenes = dict.fromkeys(
-        ("saloon", "cardeck", "corridor", "deck", "wheelhouse", "journal", "epilogue")
-    )
+    game.scenes = scenes.build(game)
     return game
 
 
