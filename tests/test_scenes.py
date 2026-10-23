@@ -1,11 +1,14 @@
 """The places on the first crossing offer what the hour and the night so far
 allow: rows appear, go unavailable with a reason, or change their label as
 the clock and the steward's choices say, and each place's own actions learn
-what they name and cost the time they say."""
+what they name and cost the time they say. The notebook costs nothing,
+keeps its last page for after the ending, and always closes somewhere."""
 
-from nightferry import facts, flags
+from nightferry import endings, facts, flags
 from nightferry.scenes.corridor import Corridor
 from nightferry.scenes.deck import SEA, Deck
+from nightferry.scenes.epilogue import Epilogue
+from nightferry.scenes.journal import Journal
 from nightferry.scenes.saloon import SALOON_SIGHTS, Saloon
 from nightferry.state import HANNE_WAKES, LAST_ORDERS, SALOON_DARK
 
@@ -208,3 +211,64 @@ def test_from_three_the_deck_shows_the_halde_light_instead_of_the_sea():
     assert game.ui.saw("three white flashes")
     assert game.state.rngDraws == 0
     assert game.state.minute == HANNE_WAKES + 20
+
+
+# --- the notebook ---------------------------------------------------------------
+def _notebook(script, known=(), ending=None, returnTo="saloon"):
+    """A game with the notebook open on the first crossing, as the scene
+    loop would have it: every place built, and somewhere to go back to."""
+    game = _game(script, known=known, location="journal")
+    game.state.ending = ending
+    game.returnTo = returnTo
+    game.scenes = dict.fromkeys(
+        ("saloon", "cardeck", "corridor", "deck", "wheelhouse", "journal", "epilogue")
+    )
+    return game
+
+
+def test_a_notebook_with_nothing_in_it_says_so_and_points_nowhere():
+    game = _notebook(["What you know"])
+    assert Journal(game).run() == "journal"
+    assert game.ui.dialogues == ["Nothing yet."]
+    assert game.state.minute == 0
+
+
+def test_the_last_page_is_only_in_the_notebook_once_the_night_has_ended():
+    tonight = _notebook(["Close the notebook"])
+    Journal(tonight).run()
+    assert "The last page" not in _menu(tonight)
+
+    game = _notebook(["The last page"], ending=endings.OFF_THE_LIGHT)
+    assert Journal(game).run() == "journal"
+    assert game.ui.dialogues == [endings.text(game.state)]
+
+
+def test_once_everything_is_known_the_notebook_has_no_more_to_learn():
+    game = _notebook(["What you know"], known=list(facts.FACTS))
+    Journal(game).run()
+    assert Journal(game).leadsText() == ""
+    assert not game.ui.saw("There's more to learn:")
+    assert game.ui.saw(facts.title(facts.CABIN_SIX))
+
+
+def test_closing_the_notebook_after_the_ending_goes_back_to_the_epilogue():
+    game = _notebook(["Close the notebook"], ending=endings.OFF_THE_LIGHT)
+    assert Journal(game).run() == "epilogue"
+    assert game.state.location == "epilogue"
+
+
+def test_closing_the_notebook_with_nowhere_to_go_back_to_goes_to_the_saloon():
+    for returnTo in ("journal", "nowhere"):
+        game = _notebook(["Close the notebook"], returnTo=returnTo)
+        assert Journal(game).run() == "saloon", returnTo
+        assert game.state.location == "saloon"
+
+
+# --- the epilogue ---------------------------------------------------------------
+def test_the_epilogue_opens_the_notebook_and_comes_back_to_itself():
+    game = _game(["Open your notebook"], location="epilogue")
+    game.state.ending = endings.BESIDE_ARNE
+    assert Epilogue(game).run() == "journal"
+    assert endings.name(game.state) in game.ui.menus[0][0]
+    assert game.state.location == "journal"
+    assert game.returnTo == "epilogue"
