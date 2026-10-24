@@ -173,6 +173,21 @@ def test_every_achievement_is_earnable_by_some_route(scripted, unlocked, install
     assert set(unlocked) == set(achievements.IDS)
 
 
+def test_an_achievement_that_cannot_read_a_save_is_skipped_not_raised(monkeypatch):
+    def unreadable(state):
+        raise KeyError("flags")
+
+    monkeypatch.setattr(
+        achievements,
+        "ACHIEVEMENTS",
+        [
+            {"id": "unreadable", "earned": unreadable},
+            {"id": "readable", "earned": lambda state: True},
+        ],
+    )
+    assert achievements.earned(object()) == ["readable"]
+
+
 def test_a_failing_arcade_never_stops_play(scripted, monkeypatch):
     def broken(achievementId):
         raise RuntimeError("arcade is down")

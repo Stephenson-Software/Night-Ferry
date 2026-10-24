@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 from nightferry import endings, facts, flags
 from nightferry.game import describeSlot
@@ -126,6 +127,62 @@ def test_a_damaged_save_is_kept_aside_and_a_fresh_crossing_starts(scripted):
     damaged = [n for n in os.listdir(os.path.dirname(path)) if "damaged" in n]
     assert damaged
     assert game2.state.minute == 0
+
+
+def test_a_damaged_save_that_cannot_be_copied_aside_still_starts_fresh(
+    scripted, monkeypatch
+):
+    game, ui = scripted(NEW + ["Quit"])
+    game.play()
+    path = game.saveFileManager.get_save_path("save.json")
+    with open(path, "w") as f:
+        f.write('{"version": 1, "minute": "ten", "facts": []}')
+
+    def readOnlyDisk(source, destination):
+        raise OSError("read-only file system")
+
+    monkeypatch.setattr(shutil, "copy2", readOnlyDisk)
+    game2, ui2 = scripted(["Load Slot 1", "Quit"])
+    game2.play()
+    assert ui2.saw("This save could not be read")
+    assert ui2.saw("It could not be copied aside.")
+    assert not [n for n in os.listdir(os.path.dirname(path)) if "damaged" in n]
+    assert game2.state.minute == 0
+
+
+def _rewriteSave(game, **fields):
+    path = game.saveFileManager.get_save_path("save.json")
+    with open(path) as f:
+        data = json.load(f)
+    data.update(fields)
+    with open(path, "w") as f:
+        json.dump(data, f)
+
+
+def test_a_save_in_a_place_the_boat_does_not_have_resumes_in_the_saloon(scripted):
+    game, ui = scripted(NEW + ["Quit"])
+    game.play()
+    _rewriteSave(game, location="galley")
+
+    game2, ui2 = scripted(["Load Slot 1", "Quit"])
+    game2.play()
+    assert game2.state.location == "saloon"
+    assert any("Ask the purser" in label for label in ui2.menus[1][1])
+
+
+def test_an_ended_save_in_a_place_the_boat_does_not_have_resumes_at_the_epilogue(
+    scripted,
+):
+    game, ui = scripted(NEW + ["Quit"])
+    game.play()
+    _rewriteSave(
+        game, location="galley", minute=DOCKING, ending=endings.AT_THE_DOOR
+    )
+
+    game2, ui2 = scripted(["Load Slot 1", "Quit"])
+    game2.play()
+    assert game2.state.location == "epilogue"
+    assert "Read the last page again" in ui2.menus[1][1]
 
 
 def test_the_notebook_is_free_and_returns_where_it_was_opened(scripted):
