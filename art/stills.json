@@ -1,0 +1,82 @@
+{
+  "provisional": true,
+  "note": "PROVISIONAL. Chosen by Claude to render a first pass under RFC 0025, not by the author. The setting (place, date, year), the art direction and every alt line below are the author's to change; the game's own text fixes none of them.",
+  "setting": {
+    "place": "Brekka and Halde are fictional. Rendered on a coast at 62.0 N, 5.5 E, UTC+2.",
+    "date": "The October crossing, rendered as the night of 2023-10-13 to 14. The year is arbitrary: the text names the month, not the year.",
+    "why": [
+      "The crossing runs 20:00 to 06:00 in October (README; state.py); the last boat in March uses the same five places and, by the RFC's default of one still per location, the same stills.",
+      "At that latitude and date every hour of the crossing is after dusk, so the outdoor still is lit by the deck lamps, the stern light and Strata's synthetic moon.",
+      "The year is left open by the text, but a passenger has a laptop (the saloon menu), so a present-day year was used."
+    ]
+  },
+  "strata": "v0.4.0",
+  "size": [
+    640,
+    360
+  ],
+  "budgetBytes": 524288,
+  "artDirection": "Flat-coloured Strata primitives, no textures; one still per location; no people drawn (the characters are written, not drawn - RFC 0025 non-goal).",
+  "stills": {
+    "saloon": {
+      "scene": "art/saloon.scene",
+      "hour": "23:00",
+      "alt": "The saloon at night under blue lamps: rows of reclining seats, some with company blankets over them, dark windows, a shuttered bar, and the purser's hatch lit warm at the far end.",
+      "sun": {
+        "date": "2023-10-13",
+        "time": "23:00",
+        "utcOffset": 2,
+        "latitude": 62.0,
+        "longitude": 5.5
+      }
+    },
+    "cardeck": {
+      "scene": "art/cardeck.scene",
+      "hour": "21:00",
+      "alt": "The car deck under cold strip lights: cars parked nose to tail in two lanes between yellow lines, and a white van with its back doors open on blue fish boxes.",
+      "sun": {
+        "date": "2023-10-13",
+        "time": "21:00",
+        "utcOffset": 2,
+        "latitude": 62.0,
+        "longitude": 5.5
+      }
+    },
+    "corridor": {
+      "scene": "art/corridor.scene",
+      "hour": "00:00",
+      "alt": "The cabin corridor: a narrow carpeted passage with cabin doors on both sides, a red fire-hose box, the pantry door lit, and at the far end the door of cabin 6 with a white card in its slot.",
+      "sun": {
+        "date": "2023-10-14",
+        "time": "00:00",
+        "utcOffset": 2,
+        "latitude": 62.0,
+        "longitude": 5.5
+      }
+    },
+    "deck": {
+      "scene": "art/deck.scene",
+      "hour": "02:00",
+      "alt": "The open deck astern at night: the stern rail and a lifebuoy in the foreground, the pale wake spreading behind the ship over black water, and one small light on the horizon.",
+      "sun": {
+        "date": "2023-10-14",
+        "time": "02:00",
+        "utcOffset": 2,
+        "latitude": 62.0,
+        "longitude": 5.5
+      }
+    },
+    "wheelhouse": {
+      "scene": "art/wheelhouse.scene",
+      "hour": "04:00",
+      "alt": "The dark wheelhouse: the green glow of the radar on the console under the forward windows, the lit binnacle on its pedestal, and the chart table under a red lamp.",
+      "sun": {
+        "date": "2023-10-14",
+        "time": "04:00",
+        "utcOffset": 2,
+        "latitude": 62.0,
+        "longitude": 5.5
+      }
+    }
+  }
+}

@@ -69,6 +69,22 @@ What the saloon and the sea show you is drawn from a seeded sequence, one genera
 
 Numbered slots under `data/` (or `NIGHTFERRY_SAVE_DIR`), one `save.json` each, validated against `schemas/save.json` on every load and save. Saves made by 0.1.0 (schema version 1, one crossing) load unchanged: `state.migrate()` brings them forward in memory, and the next save writes them as version 2, which adds `crossing` and `past` (the first crossing as it ended). `tests/fixtures/saves-0.1.0/` holds saves written by 0.1.0 itself, and `tests/test_save_compat.py` loads, plays on and sails the last boat from each. A save that can't be read is listed as damaged, never overwritten, and copied aside if you open it anyway. In the browser, saves live in IndexedDB (`night-ferry-saves`) and the page's Saves control downloads or loads them as a file.
 
+## Location stills (provisional)
+
+In the browser, each of the five places (the same five on both crossings) has one picture above its menu, rendered offline with the [Strata](https://github.com/Preponderous-Software/strata) engine from a scene file in `art/` and shipped as a PNG in `pictures/` inside the browser bundle. The console is unchanged: it shows no pictures.
+
+![A place's still above its menu in the browser](docs/images/stills/web-desktop-2.png)
+
+**The setting and the art are a provisional first pass** (an October night at 62° N, flat-coloured shapes, no people drawn), recorded as provisional in [`art/stills.json`](art/stills.json) with the reasoning for each choice. All of it, the alt text included, is the author's to change. [All the stills](docs/images/stills/contact-sheet.png).
+
+To re-render after editing a scene or the manifest, build Strata's `strata-golden` tool at the tag `art/stills.json` names (see the top of `art/render.py`), then:
+
+```bash
+uv run --with pillow python art/render.py --strata-golden /path/to/strata-golden
+```
+
+The script places the sun from each still's date, time and place, and refuses to render a still whose sun is not filled in. The PNGs are committed, and `tests/test_stills.py` holds them to the manifest's size budget.
+
 ## Development
 
 ```bash

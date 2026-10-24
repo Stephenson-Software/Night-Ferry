@@ -18,7 +18,7 @@ from tak.saves import (
 )
 from tak.ui import UIType, createUserInterface
 
-from nightferry import achievements, endings, premise, progression, scenes
+from nightferry import achievements, endings, premise, progression, scenes, stills
 from nightferry.lastboat import endings as lastEndings
 from nightferry.lastboat import premise as lastPremise
 from nightferry.lastboat import scenes as lastScenes
@@ -116,6 +116,8 @@ class NightFerry:
             tagline=TAGLINE,
             envPrefix=ENV_PREFIX,
         )
+        # The picture over each place's menu in the browser (RFC 0025).
+        self.stillAlts = stills.load()
 
         chosen = chooseSlot(
             self.ui, self.saveFileManager, TITLE + " - Save Files", describeSlot
@@ -189,6 +191,7 @@ class NightFerry:
                 current = self.state.location = (
                     "epilogue" if self.state.over else "saloon"
                 )
+            stills.show(self.ui, current, self.stillAlts)
             nextScene = self.scenes[current].run()
             self.save()
             achievements.award(self)
