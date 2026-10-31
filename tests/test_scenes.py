@@ -5,11 +5,13 @@ what they name and cost the time they say. The notebook costs nothing,
 keeps its last page for after the ending, and always closes somewhere."""
 
 from nightferry import endings, facts, flags, scenes
+from nightferry.scenes.cardeck import CarDeck
 from nightferry.scenes.corridor import Corridor
 from nightferry.scenes.deck import SEA, Deck
 from nightferry.scenes.epilogue import Epilogue
 from nightferry.scenes.journal import Journal
 from nightferry.scenes.saloon import SALOON_SIGHTS, Saloon
+from nightferry.scenes.wheelhouse import Wheelhouse
 from nightferry.state import HANNE_WAKES, LAST_ORDERS, SALOON_DARK
 
 from conftest import FakeGame, ScriptedUI
@@ -192,6 +194,63 @@ def test_with_gus_let_in_six_is_his_and_not_opened_with_the_master_key():
     assert Corridor(game).run() == "corridor"
     assert not any("Open cabin 6" in label for label in _menu(game))
     assert game.state.minute == 0
+
+
+# --- the car deck ---------------------------------------------------------------
+TARPAULIN = "Lift the tarpaulin on the lorry"
+
+
+def test_lifting_the_tarpaulin_finds_the_piano_once_and_then_only_remembers_it():
+    game = _game([TARPAULIN], location="cardeck")
+    assert CarDeck(game).run() == "cardeck"
+    assert game.state.knows(facts.THE_PIANO)
+    assert game.ui.saw("HALDE SCHOOL stencilled on the back")
+    assert game.state.minute == 20
+
+    game.ui.script.append(TARPAULIN)
+    assert CarDeck(game).run() == "cardeck"
+    assert game.ui.dialogues[-1].startswith("The piano, under its blankets")
+    assert game.state.facts == [facts.THE_PIANO]
+    assert game.state.minute == 40
+
+
+def test_the_lorry_driver_is_gus_once_the_piano_is_known():
+    stranger = _game([TARPAULIN], location="cardeck")
+    CarDeck(stranger).run()
+    assert "Talk to the lorry driver" in _menu(stranger)
+
+    game = _game([TARPAULIN], known=[facts.THE_PIANO], location="cardeck")
+    CarDeck(game).run()
+    menu = _menu(game)
+    assert "Talk to Gus, the lorry driver" in menu
+    assert "Talk to the lorry driver" not in menu
+
+
+def test_with_gus_let_in_his_cab_is_empty_and_there_is_nobody_to_talk_to():
+    game = _game([TARPAULIN], tonight={flags.LET_GUS_IN: True}, location="cardeck")
+    CarDeck(game).run()
+    assert "Gus is in cabin 6 because of you." in game.ui.menus[0][0]
+    assert not any("lorry driver" in label for label in _menu(game))
+
+
+# --- the wheelhouse -------------------------------------------------------------
+CHART = "Look at the chart table"
+
+
+def test_the_chart_shows_the_light_rubbed_out_until_the_captain_will_stop():
+    game = _game([CHART], location="wheelhouse")
+    assert Wheelhouse(game).run() == "wheelhouse"
+    assert game.ui.saw("rubbed out and written in again")
+    assert not game.ui.saw("STOP ENGINES")
+    assert game.state.minute == 20
+
+
+def test_once_the_captain_will_stop_the_chart_says_so_in_pencil():
+    game = _game([CHART], tonight={flags.INGRID_WILL_STOP: True}, location="wheelhouse")
+    assert Wheelhouse(game).run() == "wheelhouse"
+    assert game.ui.saw("0500 - STOP ENGINES")
+    assert not game.ui.saw("rubbed out")
+    assert game.state.minute == 20
 
 
 # --- the open deck --------------------------------------------------------------
