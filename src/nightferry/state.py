@@ -209,10 +209,6 @@ class State:
         return self.minute == 0
 
     @property
-    def barOpen(self):
-        return self.minute < LAST_ORDERS
-
-    @property
     def fennInHisCabin(self):
         return self.minute >= LAST_ORDERS
 
