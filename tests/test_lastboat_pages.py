@@ -125,7 +125,7 @@ def test_october_is_remembered_in_the_page():
     )
 
 
-def test_a_letter_handed_over_at_last_is_on_the_page_and_tove_is_told_so():
+def test_a_letter_handed_over_at_last_is_on_the_page_and_in_toves_line():
     pocket = {flags.TOVE_GAVE_LETTER: True}
     given = _ended(
         endings.KEPT_FROM_THE_RECORD,
