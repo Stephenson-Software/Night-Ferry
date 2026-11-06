@@ -4,7 +4,7 @@ import re
 
 from tak.saves import validateAgainstSchema
 
-from nightferry import facts, flags
+from nightferry import endings, facts, flags
 from nightferry.game import describeSlot, slotMetadata
 from nightferry.state import (
     CAPTAIN_COMES_DOWN,
@@ -203,6 +203,16 @@ def test_a_last_boat_state_round_trips_through_the_schema():
         pass
     else:
         raise AssertionError("an October fact was learned in March")
+
+
+def test_a_past_flag_is_only_ever_read_from_the_crossing_before():
+    state = State()
+    state.flags[flags.TOVE_GAVE_LETTER] = True
+    assert state.pastFlag(flags.TOVE_GAVE_LETTER) is None
+    state.ending = endings.KEPT_CROSSING
+    state.sailAgain()
+    assert state.pastFlag(flags.TOVE_GAVE_LETTER) is True
+    assert state.pastFlag(flags.OPENED_SIX) is None
 
 
 def test_the_last_boats_night_is_where_the_hour_puts_it():

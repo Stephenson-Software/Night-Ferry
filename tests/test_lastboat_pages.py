@@ -125,6 +125,30 @@ def test_october_is_remembered_in_the_page():
     )
 
 
+def test_a_letter_handed_over_at_last_is_on_the_page_and_in_toves_line():
+    pocket = {flags.TOVE_GAVE_LETTER: True}
+    given = _ended(
+        endings.KEPT_FROM_THE_RECORD,
+        october=firstEndings.KEPT_CROSSING,
+        pastFlags=pocket,
+        **{flags.LETTER_TO_HANNE: True}
+    )
+    assert _paragraphs(given)[2] == (
+        "WHAT YOU DID. You gave Hanne her mother's letter, five months late."
+    )
+    tove = _starting(given, "FROM OCTOBER.")[0]
+    assert "The letter she gave you in October reached Hanne in March" in tove
+    assert "believes, still" not in tove
+
+    held = _ended(
+        endings.KEPT_FROM_THE_RECORD,
+        october=firstEndings.KEPT_CROSSING,
+        pastFlags=pocket,
+    )
+    assert "five months late" not in _paragraphs(held)[2]
+    assert "reached Hanne in March" not in _starting(held, "FROM OCTOBER.")[0]
+
+
 def test_an_empty_last_boat_says_you_were_sent_for():
     state = _ended(endings.KEPT_FROM_THE_RECORD)
     assert _paragraphs(state)[2].startswith("WHAT YOU DID. Nothing that changed it.")
