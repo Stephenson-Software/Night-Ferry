@@ -4,7 +4,7 @@ person on the boat gets a sentence, whichever way they were left."""
 
 import itertools
 
-from nightferry import endings, flags
+from nightferry import endings, facts, flags
 from nightferry.state import State
 
 PEOPLE = ("HANNE.", "INGRID.", "OSKAR.", "RASKE.", "DR FENN.", "JORY.", "GUS.", "TOVE.", "YOU.")
@@ -122,3 +122,39 @@ def test_the_captain_remembers_a_broken_word_and_a_lifted_seal():
 def test_an_empty_night_says_you_did_nothing_that_changed_it():
     state = _ended(endings.KEPT_CROSSING)
     assert _paragraphs(state)[2] == "WHAT YOU DID. Nothing that changed it. You poured coffee."
+
+
+def test_what_you_did_says_whether_the_captain_told_you_who_cabin_6_was_for():
+    found = _ended(endings.BESIDE_ARNE)
+    found.learn(facts.THE_CAPTAIN)
+    assert _paragraphs(found)[2] == "WHAT YOU DID. You found out who cabin 6 was for."
+
+    heard = _ended(endings.BESIDE_ARNE, **{flags.INGRID_TOLD_YOU: True})
+    heard.learn(facts.THE_CAPTAIN)
+    assert _paragraphs(heard)[2] == (
+        "WHAT YOU DID. You found out who cabin 6 was for and heard it from the "
+        "captain."
+    )
+
+
+def test_what_you_did_does_not_claim_a_finding_out_that_came_at_the_door():
+    state = _ended(endings.AT_THE_DOOR, **{flags.AT_THE_DOOR: True})
+    state.learn(facts.THE_CAPTAIN)
+    assert "found out who cabin 6 was for" not in _paragraphs(state)[2]
+
+
+def test_off_the_light_says_how_hanne_found_out():
+    for tonight, how in (
+        ({}, "She found out on the bridge, because you brought her up, and"),
+        ({flags.TOLD_HANNE: True}, "She found out from you, in the saloon, and"),
+        (
+            {flags.AT_THE_DOOR: True},
+            "She found out in a corridor at four in the morning, and",
+        ),
+        (
+            {flags.TOLD_HANNE: True, flags.AT_THE_DOOR: True},
+            "She found out in a corridor at four in the morning, and",
+        ),
+    ):
+        state = _ended(endings.OFF_THE_LIGHT, **tonight)
+        assert how in _starting(state, "HANNE.")[0], tonight

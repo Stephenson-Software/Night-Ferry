@@ -127,6 +127,19 @@ def test_the_captain_can_be_talked_to_at_the_stern_once_the_books_are_settled():
     assert "The captain is at the rail" in game.ui.menus[0][0]
 
 
+def test_talking_to_the_captain_at_the_stern_is_a_conversation_with_her():
+    game = _lastBoat(
+        ["Talk to Ingrid", "Coffee, captain?", "[Back]"],
+        minute=LB_THE_STERN + 20,
+        tonight={flags.AT_THE_STERN: True, flags.BOOKS_KEPT: True},
+        location="deck",
+    )
+    assert Deck(game).run() == "deck"
+    assert game.ui.menus[1][0] == "Talking with Ingrid"
+    assert game.ui.saw("Ingrid: Not captain. (She takes it anyway.)")
+    assert game.state.minute == LB_THE_STERN + 40
+
+
 def test_the_piano_under_six_wins_the_books_at_the_rail_without_the_crosses():
     game = _lastBoat(
         ["Give them to Hanne"],
