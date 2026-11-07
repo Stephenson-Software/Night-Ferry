@@ -68,8 +68,6 @@ def slotMetadata(slotPath, data):
         state = State.fromDict(data)
         if not isinstance(state.minute, int) or isinstance(state.minute, bool):
             raise TypeError("minute is not a number")
-        if not isinstance(state.facts, list):
-            raise TypeError("facts is not a list")
         return {
             "time": formatClock(max(0, state.minute)),
             "known": len(state.facts),
