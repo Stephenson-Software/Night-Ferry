@@ -167,8 +167,6 @@ def _theStern(game, outcome):
 
 def _brekka(game, outcome):
     state = game.state
-    if state.over:
-        return
     state.ending = endings.atBrekka(state)
     outcome.ending = state.ending
     state.location = "deck"

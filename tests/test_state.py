@@ -128,6 +128,13 @@ def test_the_slot_menu_survives_saves_that_parse_but_are_not_saves():
     assert describeSlot(good) == "8:00 pm, 0 known"
 
 
+def test_a_slot_whose_facts_cannot_be_read_is_described_as_damaged():
+    for facts in (7, None):
+        metadata = slotMetadata("slot", {"minute": 20, "facts": facts})
+        assert metadata["time"] == "damaged"
+        assert metadata["known"] == 0
+
+
 def test_no_person_or_scene_gates_on_the_clock():
     """What opens a line or a menu row is what you know, a flag, or a state
     property - never a comparison against the minute, and never a fixed

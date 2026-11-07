@@ -202,8 +202,6 @@ def _theLight(game, outcome):
 
 def _theQuay(game, outcome):
     state = game.state
-    if state.over:
-        return
     state.ending = endings.atTheQuay(state)
     outcome.ending = state.ending
     state.location = "deck"
