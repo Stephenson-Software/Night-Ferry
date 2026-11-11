@@ -20,7 +20,7 @@ When the first crossing ends, the same save can sail again: **the last night boa
 
 ```bash
 pip install -r requirements.txt
-python3 web/build_zip.py     # once, and after any src/ change or tak upgrade
+python3 web/build_zip.py     # once, and after any change to src/, schemas/, pictures/, art/stills.json or version.txt, or a tak upgrade
 python3 web/serve.py         # then open http://127.0.0.1:8080
 ```
 
@@ -92,7 +92,7 @@ pip install pytest pytest-cov -r requirements.txt
 ./test.sh
 ```
 
-`tests/routes.py` holds scripted crossings — the canonical solve, the do-nothing night, the kept secret, and the last boat's canonical — and `tests/test_game.py`, `tests/test_endings.py` and `tests/test_lastboat.py` play them through a scripted front-end to each ending; if a menu label moves or a gate breaks, those tests say which. `tests/test_achievements.py` plays them with `tak.arcade` mocked and checks that every achievement is earned by some route.
+`tests/routes.py` holds scripted crossings — the canonical solve, the do-nothing night, the kept secret, the last boat's canonical, and the last boat's do-nothing night until five — and `tests/test_game.py`, `tests/test_endings.py` and `tests/test_lastboat.py` play them through a scripted front-end to each ending; if a menu label moves or a gate breaks, those tests say which. `tests/test_achievements.py` plays them with `tak.arcade` mocked and checks that every achievement is earned by some route.
 
 ## License
 This project is licensed under the **Stephenson Software Non-Commercial License (Stephenson-NC)**.  
