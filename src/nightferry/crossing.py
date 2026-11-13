@@ -3,10 +3,11 @@
 
 Every action a scene offers costs a turn of twenty minutes and goes through
 advance(). The fixed hours are here and only here: Brekka's lights going
-under at nine, the bar shutting at eleven, the saloon going dark at one, Hanne waking at three, the captain
-coming down at four, the Halde light at five, the quay at six. Scenes never
-decide any of that for themselves; they ask here, so the notebook's "night
-as you know it" and the scenes can never disagree.
+under at nine, the bar shutting at eleven, the saloon going dark at one,
+Hanne waking at three, the captain coming down at four, the Halde light at
+five, the quay at six. Scenes never decide any of that for themselves; they
+ask here, so the notebook's "night as you know it" and the scenes can never
+disagree.
 
 Four o'clock is the failure-proof answer. If nobody has told Hanne who
 cabin 6 was for, and the steward has not promised the captain to keep it,
