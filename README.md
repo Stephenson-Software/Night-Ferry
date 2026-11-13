@@ -61,7 +61,7 @@ October carries over (`lastboat/carried.py`): how the first crossing ended, whet
 
 On [arcade](https://danielstephenson.dev/play), signed-in players earn achievements through `tak.arcade.unlock` (`src/nightferry/achievements.py`): one for finishing the first crossing and one for sailing the last, one for each of the eight endings, and some for discoveries — all sixteen things on the first crossing, all thirteen on the last, the answer before four, never opening cabin 6, and a few hidden ones. A save from before achievements existed is credited the first time it is opened. Outside the browser the calls do nothing.
 
-The state is one tier (`state.py`): the minute, where you are, the facts and the time each was learned, the flags (every one named in `flags.py`), and the ending once there is one. The clock is `crossing.py`: it fires the hours of the night — the bar at eleven, the dark saloon at one, Hanne waking at three, the captain at four, the light at five, the quay at six. Scenes and people never compare the clock themselves.
+The state is one tier (`state.py`): the minute, where you are, the facts and the time each was learned, the flags (every one named in `flags.py`), and the ending once there is one. The clock is `crossing.py`: it fires the hours of the night — Brekka's lights going under at nine, the bar at eleven, the dark saloon at one, Hanne waking at three, the captain at four, the light at five, the quay at six. Scenes and people never compare the clock themselves.
 
 What the saloon and the sea show you is drawn from a seeded sequence, one generator per draw, so a reloaded save sees the same night.
 
