@@ -36,6 +36,7 @@ TURN_MINUTES = 20
 CROSSING_MINUTES = 10 * 60
 
 # The hours of the night, in minutes after departure.
+BREKKA_LIGHTS_UNDER = 60  # 9 pm: Brekka's lights go under the horizon astern
 LAST_ORDERS = 3 * 60  # 11 pm: the bar shuts; Dr Fenn goes to his cabin
 SALOON_DARK = 5 * 60  # 1 am: the lights go down; Hanne sleeps sitting up
 HANNE_WAKES = 7 * 60  # 3 am

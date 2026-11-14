@@ -19,6 +19,7 @@ the boat docks.
 from nightferry import endings, facts, flags
 from nightferry.people import deliverTheLetter
 from nightferry.state import (
+    BREKKA_LIGHTS_UNDER,
     CAPTAIN_COMES_DOWN,
     DOCKING,
     HANNE_WAKES,
@@ -30,7 +31,7 @@ from nightferry.state import (
 )
 
 HOUR_LINES = {
-    60: "Nine o'clock. Brekka's lights have gone under the horizon astern. "
+    BREKKA_LIGHTS_UNDER: "Nine o'clock. Brekka's lights have gone under the horizon astern. "
     "There is nothing in any direction now but the Kittiwake and the dark.",
     LAST_ORDERS: "Eleven. Oskar pulls the grille down over the bar. Dr Fenn "
     "folds his newspaper, says goodnight to nobody in particular, and goes "

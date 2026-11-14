@@ -7,6 +7,7 @@ from tak.saves import validateAgainstSchema
 from nightferry import endings, facts, flags
 from nightferry.game import describeSlot, slotMetadata
 from nightferry.state import (
+    BREKKA_LIGHTS_UNDER,
     CAPTAIN_COMES_DOWN,
     DOCKING,
     HANNE_WAKES,
@@ -42,6 +43,7 @@ def test_a_full_state_round_trips_through_the_schema():
 def test_the_clock_reads_like_a_ships_clock():
     assert formatClock(0) == "8:00 pm"
     assert formatClock(20) == "8:20 pm"
+    assert formatClock(BREKKA_LIGHTS_UNDER) == "9:00 pm"
     assert formatClock(4 * 60) == "12:00 am"
     assert formatClock(SALOON_DARK) == "1:00 am"
     assert formatClock(DOCKING) == "6:00 am"
