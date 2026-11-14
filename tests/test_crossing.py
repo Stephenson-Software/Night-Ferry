@@ -8,6 +8,7 @@ import pytest
 
 from nightferry import crossing, endings, facts, flags
 from nightferry.state import (
+    BREKKA_LIGHTS_UNDER,
     CAPTAIN_COMES_DOWN,
     DOCKING,
     HANNE_WAKES,
@@ -46,7 +47,7 @@ def test_every_turn_costs_twenty_minutes():
 @pytest.mark.parametrize(
     "hour, words",
     [
-        (60, "Nine o'clock."),
+        (BREKKA_LIGHTS_UNDER, "Nine o'clock."),
         (LAST_ORDERS, "Eleven. Oskar pulls the grille down"),
         (SALOON_DARK, "One o'clock. The saloon lights go down"),
         (HANNE_WAKES, "Three. Hanne is awake"),
